@@ -1,0 +1,4 @@
+use yarn add
+
+@nestjs/config
+@nestjs/typeorm typeorm pg
