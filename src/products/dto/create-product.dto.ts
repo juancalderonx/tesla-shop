@@ -12,7 +12,7 @@ export class CreateProductDto {
     readonly description?: string;
 
     @IsString() @IsOptional()
-    readonly slug?: string;
+    slug?: string;
 
     @IsInt() @IsPositive() @IsOptional()
     readonly stock?: number;
