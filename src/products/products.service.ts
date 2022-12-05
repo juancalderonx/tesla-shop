@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ErrorsService } from 'src/utils/errors/errors.service';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -9,10 +10,14 @@ import { Product } from './entities/product.entity';
 @Injectable()
 export class ProductsService {
 
+  private readonly logger = new Logger('ProductsService');
+
   constructor(
 
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    private readonly errorService: ErrorsService
 
   ) {}
 
@@ -29,8 +34,7 @@ export class ProductsService {
       return product;
 
     } catch (err) {
-      console.log(err);
-      throw new InternalServerErrorException('Error en el servidor, ayuda.')
+      this.errorService.DBHandleError(err);
     }
 
   }
