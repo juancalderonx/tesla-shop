@@ -2,3 +2,5 @@ use yarn add
 
 @nestjs/config
 @nestjs/typeorm typeorm pg
+class-validator
+class-transform
