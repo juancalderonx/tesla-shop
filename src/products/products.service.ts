@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InternalServerErrorException } from '@nestjs/common/exceptions';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ErrorsService } from 'src/utils/errors/errors.service';
 import { Repository } from 'typeorm';
@@ -9,8 +9,6 @@ import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
-
-  private readonly logger = new Logger('ProductsService');
 
   constructor(
 
@@ -39,19 +37,28 @@ export class ProductsService {
 
   }
 
+  //TODO: Paginar
   findAll() {
-    return `This action returns all products`;
+    return this.productRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    const product = await this.productRepository.findOneBy({ id });
+
+    if(!product) throw new NotFoundException(`Product with id ${id} not found`);
+
+    return product;
+
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
+  update(id: string, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    const product = await this.findOne(id);
+
+    return this.productRepository.remove(product);
+
   }
 }
