@@ -1,23 +1,23 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductImage } from "./index";
 
 @Entity()
 export class Product {
 
+  // Columns ------------------------------------------------------------------------------------------------
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
 
   @Column('text', {
     unique: true
   })
   title: string;
 
-
   @Column('float', {
     default: 0
   })
   price: number;
-
 
   @Column({
     type: "text",
@@ -25,24 +25,20 @@ export class Product {
   })
   description: string;
 
-
   @Column({
     unique: true
   })
   slug: string;
-
 
   @Column('int', {
     default: 0
   })
   stock: number;
 
-
   @Column('text', {
     array: true
   })
   sizes: string[];
-
 
   @Column('text')
   gender: string;
@@ -53,7 +49,14 @@ export class Product {
   })
   tags: string[];
 
-  // TO-DO Images propertie
+  @OneToMany(
+    () => ProductImage,
+    productImage => productImage.product,
+    { cascade: true }
+  )
+  images?: ProductImage;
+
+  // Procceses ------------------------------------------------------------------------------------------------
 
   @BeforeInsert()
   checkSlugInsert() {
