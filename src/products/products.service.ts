@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common/exceptions';
+import { Injectable } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { ErrorsService } from 'src/common/errors/errors.service';
-import { BeforeUpdate, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
 import { validate as isUUID } from 'uuid'
+import { ProductImage, Product } from './entities';
 
 @Injectable()
 export class ProductsService {
@@ -21,6 +21,9 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
+    @InjectRepository(ProductImage)
+    private readonly productImageRepository: Repository<ProductImage>,
+
     private readonly errorService: ErrorsService
 
   ) {}
@@ -33,13 +36,18 @@ export class ProductsService {
     
     try {
 
+      const { images = [], ...productDetails } = createProductDto;
+
       // Creo el producto en base a los datos que llegaron del Frontend.
-      const product = this.productRepository.create(createProductDto);
+      const product = this.productRepository.create({
+        ...productDetails,
+        images: images.map( image => this.productImageRepository.create({ url: image }) )
+      });
 
       // Guardo el producto en DB.
       await this.productRepository.save(product);
 
-      return product;
+      return { ...product, images };
 
     } catch (err) {
       this.errorService.DBHandleError(err);
@@ -100,7 +108,8 @@ export class ProductsService {
     */
     const product = await this.productRepository.preload({
       id: id,
-      ...updateProductDto
+      ...updateProductDto,
+      images: []
     });
 
     if(!product) throw new NotFoundException(`Product with id: ${id} not found`);
