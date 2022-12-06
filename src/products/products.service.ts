@@ -3,7 +3,7 @@ import { InternalServerErrorException, NotFoundException } from '@nestjs/common/
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { ErrorsService } from 'src/common/errors/errors.service';
-import { Repository } from 'typeorm';
+import { BeforeUpdate, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -12,6 +12,10 @@ import { validate as isUUID } from 'uuid'
 @Injectable()
 export class ProductsService {
 
+  /** Inicializa el servicio.
+   * @param productRepository Repositorio para manejar la tabla Products de la base de datos.  
+   * @param errorService Inyección del servicio de errores, para manejar logs de las operaciones en consola.
+   */
   constructor(
 
     @InjectRepository(Product)
@@ -21,6 +25,10 @@ export class ProductsService {
 
   ) {}
 
+  /** Service | Crea un nuevo producto.
+   * @param createProductDto Recibe el DTO del producto a crear.
+   * @returns El producto creado.
+   */
   async create(createProductDto: CreateProductDto) {
     
     try {
@@ -39,6 +47,10 @@ export class ProductsService {
 
   }
 
+  /** Service | Trae todos los productos de la base de datos.
+   * @param paginationDto DTO de paginación.
+   * @returns Lista de productos encontrados en formato JSON.
+   */
   findAll( paginationDto : PaginationDto ) {
     
     const { limit = 10, offset = 0 } = paginationDto;
@@ -52,6 +64,10 @@ export class ProductsService {
     });
   }
 
+  /** Service | Busca un producto por término.
+   * @param term Término de búsqueda. Puede ser UUID, title or slug.
+   * @returns Producto encontrado.
+   */
   async findOne(term: string) {
 
     let product: Product;
@@ -76,8 +92,26 @@ export class ProductsService {
     return product;
   }
 
-  update(id: string, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+
+    /*
+    Aquí lo que se hace es que con el ID que se buscó el producto, primero con el preload buscamos ese producto.
+    Entonces, si encuentra algo con ese ID, le carga todas las propiedades que contenga el DTO.
+    */
+    const product = await this.productRepository.preload({
+      id: id,
+      ...updateProductDto
+    });
+
+    if(!product) throw new NotFoundException(`Product with id: ${id} not found`);
+
+    try {
+      await this.productRepository.save(product);
+      
+      return product;
+    } catch (err) {
+      this.errorService.DBHandleError(err);
+    }
   }
 
   async remove(id: string) {
@@ -86,4 +120,5 @@ export class ProductsService {
     return this.productRepository.remove(product);
 
   }
+  
 }
