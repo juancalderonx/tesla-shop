@@ -4,3 +4,5 @@ use yarn add
 @nestjs/typeorm typeorm pg
 class-validator
 class-transform
+uuid
+yarn add -D @types/uuid
