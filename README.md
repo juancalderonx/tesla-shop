@@ -27,7 +27,13 @@ Teslo es un ECommerce Lorem ipsum dolor sit amet consectetur adipisicing elit. N
     docker-compose up -d
     ``` 
 
-6. Levantar la aplicación con:
+6. Ejecutar el seed de productos.
+   
+    ```
+    http://localhost:3000/api/v1/seed
+    ``` 
+
+7. Levantar la aplicación con:
     ```
     yarn start:dev
     ```
