@@ -28,6 +28,8 @@ export class ProductsService {
 
   ) {}
 
+  // CRUD Operations --------------------------------------------------------------------------------------------------------------------------------
+
   /** Service | Crea un nuevo producto.
    * @param createProductDto Recibe el DTO del producto a crear.
    * @returns El producto creado.
@@ -59,17 +61,23 @@ export class ProductsService {
    * @param paginationDto DTO de paginación.
    * @returns Lista de productos encontrados en formato JSON.
    */
-  findAll( paginationDto : PaginationDto ) {
+  async findAll( paginationDto : PaginationDto ) {
     
     const { limit = 10, offset = 0 } = paginationDto;
     
-    return this.productRepository.find({
+    const products = await this.productRepository.find({
       take: limit,
       skip: offset,
-
-      // TO-DO: Relations in Database
-
+      relations: {
+        images: true,
+      }
     });
+
+    return products.map( product => ({
+      ...product,
+      images: product.images.map( image => image.url )
+    }));
+
   }
 
   /** Service | Busca un producto por término.
@@ -84,14 +92,16 @@ export class ProductsService {
       product = await this.productRepository.findOneBy({ id: term });
     }
     else {
-      const queryBuilder = this.productRepository.createQueryBuilder();
+      const queryBuilder = this.productRepository.createQueryBuilder('prod');
 
       product = await
         queryBuilder
           .where(`UPPER(title) =:title OR slug =:slug`, {
             title: term.toUpperCase(),
             slug: term.toLocaleLowerCase()
-          }).getOne();
+          })
+          .leftJoinAndSelect('prod.images', 'images')
+          .getOne();
 
     }
 
@@ -129,5 +139,20 @@ export class ProductsService {
     return this.productRepository.remove(product);
 
   }
+
+  // Custom Operations --------------------------------------------------------------------------------------------------------------------------------
   
+  /** Personaliza la forma en que se devuelve un producto al Frontend. En este caso, aplanamos las imágenes para retornarlas sin el ID propio de ellas.
+   * @param term Puede ser ID, title o slug del producto.
+   * @returns Producto encontrado y su relación con las imágenes ya aplanadas.
+   */
+  async findOnePlain( term: string ) {
+    const { images = [], ...product } = await this.findOne(term);
+    return {
+      ...product,
+      images: images.map( image => image.url )
+    }
+  }
+
+
 }
