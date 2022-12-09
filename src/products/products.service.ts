@@ -13,8 +13,10 @@ import { ProductImage, Product } from './entities';
 export class ProductsService {
 
   /** Inicializa el servicio.
-   * @param productRepository Repositorio para manejar la tabla Products de la base de datos.  
+   * @param productRepository Repositorio para manejar la tabla Products de la base de datos.
+   * @param productImageRepository Repositorio para manejar la tabla ProductImage de la base de datos.
    * @param errorService Inyección del servicio de errores, para manejar logs de las operaciones en consola.
+   * @param dataSource Inyección de DataSource, clase de TypeORM para darle acceso a la DB al queryRunner.
    */
   constructor(
 
@@ -112,6 +114,11 @@ export class ProductsService {
     return product;
   }
 
+  /** Service | Actualiza un producto.
+   * @param id UUID del producto a actualizar.
+   * @param updateProductDto DTO del producto actualizado.
+   * @returns Producto actualizado.
+   */
   async update(id: string, updateProductDto: UpdateProductDto) {
 
     // Separo las imágenes y el resto de información del producto. Esto con el fin de manejar la actualización del producto de una forma y la de las imágenes de otra.
@@ -161,7 +168,6 @@ export class ProductsService {
     const product = await this.findOne(id);
 
     return this.productRepository.remove(product);
-
   }
 
   // Custom Operations --------------------------------------------------------------------------------------------------------------------------------
