@@ -6,3 +6,4 @@ class-validator
 class-transform
 uuid
 yarn add -D @types/uuid
+yarn add -D @types/multer
