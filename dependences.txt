@@ -2,8 +2,9 @@ use yarn add
 
 @nestjs/config
 @nestjs/typeorm typeorm pg
+@nestjs/serve-static
 class-validator
 class-transform
 uuid
-yarn add -D @types/uuid
-yarn add -D @types/multer
+-D @types/uuid
+-D @types/multer
