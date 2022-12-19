@@ -11,6 +11,7 @@ export const fileFilter = (
   const validExtensions = ['jpg', 'png', 'jpeg', 'gif'];
 
   if(validExtensions.includes(fileExtension)) return callback(null, true);
+  // El true significa que SÍ estamos aceptando el archivo.
 
-  callback(null, false); // El true significa que SÍ estamos aceptando el archivo.
+  callback(null, false);
 };
