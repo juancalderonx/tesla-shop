@@ -1,10 +1,10 @@
-use yarn add
-
-@nestjs/config
-@nestjs/typeorm typeorm pg
-@nestjs/serve-static
-class-validator
-class-transform
-uuid
--D @types/uuid
--D @types/multer
+yarn add @nestjs/config
+yarn add @nestjs/typeorm typeorm pg
+yarn add @nestjs/serve-static
+yarn add class-validator
+yarn add class-transform
+yarn add uuid
+yarn add -D @types/uuid
+yarn add -D @types/multer
+yarn add bcrypt
+yarn add -D @types/bcrypt

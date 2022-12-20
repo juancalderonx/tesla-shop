@@ -1,9 +1,11 @@
+import { Response } from 'express';
+import { diskStorage } from 'multer';
+
 import { BadRequestException, Controller, Post } from '@nestjs/common';
 import { Get, Param, Res, UploadedFile, UseInterceptors } from '@nestjs/common/decorators';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
-import { diskStorage } from 'multer';
+
 import { FilesService } from './files.service';
 import { fileFilter, fileNamer } from './helpers/index';
 
