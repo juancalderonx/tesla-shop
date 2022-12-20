@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
 
@@ -9,6 +10,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto, LoginUserDto } from './dto';
 
 import { ErrorsService } from 'src/common/errors/errors.service';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
 
     private readonly errorService: ErrorsService,
+
+    private readonly jwtService: JwtService,
 
   ) {}
   
@@ -40,9 +44,10 @@ export class AuthService {
 
       delete user.password;
 
-      // TODO: Return JWT
-
-      return user;
+      return {
+        ...user,
+        token: this.getJwtToken({ email: user.email })
+      }
     } catch (err) {
       this.errorService.DBHandleError(err);
     }
@@ -61,8 +66,19 @@ export class AuthService {
 
     if(!bcrypt.compareSync(password, user.password)) throw new UnauthorizedException(`Credentials aren't not valid`);
 
-    return user;
-    // TODO: Return JWT
+    return {
+      ...user,
+      token: this.getJwtToken({ email: user.email })
+    }
+  }
+
+  /**
+   * Generamos y firmamos el JWT.
+   * @param payload 
+   * @returns JWT firmado.
+   */
+  private getJwtToken(payload: JwtPayload) {
+    return this.jwtService.sign(payload);
   }
 
 }
