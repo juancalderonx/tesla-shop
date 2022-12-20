@@ -24,11 +24,9 @@ export class AuthService {
     private readonly errorService: ErrorsService,
 
     private readonly jwtService: JwtService,
-
   ) {}
   
   async create(createUserDto: CreateUserDto) {
-    
     try {
 
       const { password, ...userDetails } = createUserDto;
@@ -46,12 +44,11 @@ export class AuthService {
 
       return {
         ...user,
-        token: this.getJwtToken({ email: user.email })
+        token: this.getJwtToken({ id: user.id })
       }
     } catch (err) {
       this.errorService.DBHandleError(err);
     }
-
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -59,16 +56,20 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true }
+      select: { email: true, password: true, id: true, fullname: true }
     });
 
     if(!user) throw new UnauthorizedException(`Credentials aren't not valid`);
 
     if(!bcrypt.compareSync(password, user.password)) throw new UnauthorizedException(`Credentials aren't not valid`);
 
+    delete user.password;
+
     return {
-      ...user,
-      token: this.getJwtToken({ email: user.email })
+      status: "success",
+      message: "Login successful",
+      dataUser: user,
+      token: this.getJwtToken({ id: user.id })
     }
   }
 

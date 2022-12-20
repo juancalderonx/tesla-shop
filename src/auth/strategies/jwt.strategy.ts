@@ -34,15 +34,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     // No necesito el password del usuario, ya que únicamente si el usuario se autentica correctamente, vamos a generar el JWT, de lo contrario no.
     
-    const { email } = payload;
+    const { id } = payload;
 
-    const user = await this.userRepository.findOneBy({email: email});
+    const user = await this.userRepository.findOneBy({id: id});
 
     if(!user) throw new UnauthorizedException(`Token not valid`);
 
     if(user.status === 'inactive' || user.status === 'erased')
       throw new UnauthorizedException(`User inactive or erased, please talk with the administrator.`);
-
+      
     return user;
   }
 
