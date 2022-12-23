@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { IncomingHttpHeaders } from 'http';
+import { Controller, Post, Body, Get, UseGuards, Req, Headers } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { GetUser } from './decorators/get-user.decorator';
+import { RawHeaders, GetUser } from './decorators';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { User } from './entities/user.entity';
 
@@ -22,12 +23,19 @@ export class AuthController {
   @Get('private')
   @UseGuards(AuthGuard())
   testPrivateRoute(
-    @GetUser() user: User
+    @Req() req: Express.Request,
+    @GetUser() user: User,
+    @GetUser('email') userEmail: string,
+    @RawHeaders() rawHeaders: string[],
+    // @Headers() headers: IncomingHttpHeaders, || Esto es una forma de devolver los headers sin Custom Decorators
   ) {
     return {
       status: "success",
       message: "Bien vro",
       user,
+      userEmail,
+      rawHeaders,
+      // headers,
     }
   }
 
