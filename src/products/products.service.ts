@@ -8,6 +8,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { validate as isUUID } from 'uuid'
 import { ProductImage, Product } from './entities';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -38,7 +39,7 @@ export class ProductsService {
    * @param createProductDto Recibe el DTO del producto a crear.
    * @returns El producto creado.
    */
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     
     try {
 
@@ -47,13 +48,14 @@ export class ProductsService {
       // Creo el producto en base a los datos que llegaron del Frontend.
       const product = this.productRepository.create({
         ...productDetails,
-        images: images.map( image => this.productImageRepository.create({ url: image }) )
+        images: images.map( image => this.productImageRepository.create({ url: image }) ),
+        user
       });
 
       // Guardo el producto en DB.
       await this.productRepository.save(product);
 
-      return { ...product, images };
+      return { ...product, images, user };
 
     } catch (err) {
       this.errorService.DBHandleError(err);
@@ -119,7 +121,7 @@ export class ProductsService {
    * @param updateProductDto DTO del producto actualizado.
    * @returns Producto actualizado.
    */
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
 
     // Separo las imágenes y el resto de información del producto. Esto con el fin de manejar la actualización del producto de una forma y la de las imágenes de otra.
     const { images, ...productToUpdate } = updateProductDto;
@@ -151,6 +153,7 @@ export class ProductsService {
       }
 
       // Query 2 | Actualiza datos del producto.
+      product.user = user;
       await queryRunner.manager.save(product);
 
       await queryRunner.commitTransaction();
