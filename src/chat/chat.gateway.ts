@@ -10,11 +10,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   handleConnection(client: any ) {
-    console.log({ message: 'Client connected', idClient: client.id });
+    this.chatService.registerClient(client);
+    console.log('Connected clients: ' + this.chatService.getConnectedClients());
   }
 
   handleDisconnect(client: Socket) {
-    console.log({ message: 'Client disconnected', idClient: client.id });
+    this.chatService.removeClient(client.id);
+    console.log('Connected clients: ' + this.chatService.getConnectedClients());
   }
 
 }
