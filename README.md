@@ -37,3 +37,12 @@ Teslo es un ECommerce Lorem ipsum dolor sit amet consectetur adipisicing elit. N
     ```
     yarn start:dev
     ```
+
+---
+
+## Client View
+Para ver el Frontend del chat implementado en TesloShop usando ``**websockets**`` por favor clone también el siguiente repositorio:
+```
+https://github.com/juancalderonx/teslo-chat.git
+```
+Ahí encontrará la info del cliente de este proyecto.
