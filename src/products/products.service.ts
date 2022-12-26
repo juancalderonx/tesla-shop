@@ -67,10 +67,10 @@ export class ProductsService {
    * @param paginationDto DTO de paginación.
    * @returns Lista de productos encontrados en formato JSON.
    */
-  async findAll( paginationDto : PaginationDto ) {
-    
+  async findAll( paginationDto: PaginationDto ) {
+
     const { limit = 10, offset = 0 } = paginationDto;
-    
+
     const products = await this.productRepository.find({
       take: limit,
       skip: offset,
@@ -79,11 +79,10 @@ export class ProductsService {
       }
     });
 
-    return products.map( product => ({
+    return products.map( ( product ) => ({
       ...product,
-      images: product.images.map( image => image.url )
-    }));
-
+      images: product.images.map( img => img.url )
+    }))
   }
 
   /** Service | Busca un producto por término.
