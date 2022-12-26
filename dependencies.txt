@@ -17,3 +17,6 @@ yarn add @nestjs/jwt passport-jwt
 yarn add -D @types/passport-jwt
 
 yarn add @nestjs/swagger
+
+yarn add @nestjs/websockets @nestjs/platform-socket.io
+yarn add socket.io
