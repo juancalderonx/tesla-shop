@@ -24,7 +24,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('message-from-client')
   onMessageFromClient(client: Socket, payload: NewMessageDto) {
-    console.log(client.id, payload);
+    
+    // Emite únicamente al cliente, no a todos.
+    // client.emit('message-from-server', {
+    //   fullname: 'Me',
+    //   message: payload.message || 'No message available'
+    // });
+
+    // Emitir a todos menos al cliente inicial.
+    // client.broadcast.emit('message-from-server', {
+    //   fullname: 'Me',
+    //   message: payload.message || 'No message available'
+    // });
+
+    // Emitir a TODOS los clientes conectados.
+    this.wss.emit('message-from-server', {
+      fullname: 'Me',
+      message: payload.message || 'No message available'
+    });
+
   }
 
 
