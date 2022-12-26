@@ -13,6 +13,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   handleConnection(client: any ) {
+
+    console.log(client);
+
     this.chatService.registerClient(client);
     this.wss.emit('clients-updated', this.chatService.getConnectedClients());
   }
