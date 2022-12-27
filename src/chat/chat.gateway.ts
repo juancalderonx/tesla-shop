@@ -1,5 +1,7 @@
+import { JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtPayload } from 'src/auth/interfaces';
 import { ChatService } from './chat.service';
 import { NewMessageDto } from './dto/new-message.dto';
 
@@ -9,14 +11,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() wss: Server;
 
   constructor(
-    private readonly chatService: ChatService
+    private readonly chatService: ChatService,
+    private readonly jwtService: JwtService
   ) {}
 
-  handleConnection(client: any ) {
+  async handleConnection(client: Socket ) {
 
-    console.log(client);
+    const token = client.handshake.headers.auth as string;
 
-    this.chatService.registerClient(client);
+    let payload: JwtPayload;
+
+    try {
+      payload = this.jwtService.verify(token);
+      await this.chatService.registerClient(client, payload.id);
+    } catch (error) {
+      client.disconnect();
+      return;
+    }
+
     this.wss.emit('clients-updated', this.chatService.getConnectedClients());
   }
 
@@ -42,7 +54,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Emitir a TODOS los clientes conectados.
     this.wss.emit('message-from-server', {
-      fullname: 'Me',
+      fullname: this.chatService.getUserFullname(client.id),
       message: payload.message || 'No message available'
     });
 
