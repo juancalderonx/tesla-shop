@@ -20,3 +20,6 @@ yarn add @nestjs/swagger
 
 yarn add @nestjs/websockets @nestjs/platform-socket.io
 yarn add socket.io
+
+yarn add nestjs-pino pino-http
+yarn add -D pino-pretty

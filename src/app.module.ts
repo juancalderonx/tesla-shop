@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products/products.module';
@@ -11,6 +11,9 @@ import { EnvConfiguration } from './config/env.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
+import { LoggerModule } from 'nestjs-pino';
+import { CorrelationIdMiddleware, CORRELATION_ID_HEADER } from './common/middlewares/correlation-id.middleware';
+import { Request } from 'express';
 
 @Module({
   imports: [
@@ -41,8 +44,38 @@ import { ChatModule } from './chat/chat.module';
     AuthModule,
     ChatModule,
 
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            messageKey: 'message'
+          }
+        },
+        messageKey: 'message',
+        customProps: (req: Request) => {
+          return {
+            correlationId: req[CORRELATION_ID_HEADER],
+          };
+        },
+        autoLogging: false,
+        serializers: {
+          req: () => {
+            return undefined;
+          },
+          res: () => {
+            return undefined;
+          }
+        }
+      }
+    }),
+
   ],
   controllers: [ ],
   providers: [ ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+  }
+}
