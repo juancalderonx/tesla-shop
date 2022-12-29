@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -12,6 +12,8 @@ import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
+
+  private readonly logger = new Logger(ProductsService.name);
 
   /** Inicializa el servicio.
    * @param productRepository Repositorio para manejar la tabla Products de la base de datos.
@@ -40,6 +42,8 @@ export class ProductsService {
    * @returns El producto creado.
    */
   async create(createProductDto: CreateProductDto, user: User) {
+
+    this.logger.log(`Creating product with service of Products.`)
     
     try {
 

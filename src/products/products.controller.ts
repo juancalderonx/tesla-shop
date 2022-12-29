@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, Logger } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger/dist';
 import { ApiResponse } from '@nestjs/swagger/dist/decorators';
 import { ProductsService } from './products.service';
@@ -13,6 +13,9 @@ import { Product } from './entities';
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
+
+  private readonly logger = new Logger(ProductsController.name);
+
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
@@ -24,6 +27,7 @@ export class ProductsController {
     @Body() createProductDto: CreateProductDto,
     @GetUser() user: User
     ) {
+    this.logger.log(`trying to create product`);
     return this.productsService.create(createProductDto, user);
   }
 
